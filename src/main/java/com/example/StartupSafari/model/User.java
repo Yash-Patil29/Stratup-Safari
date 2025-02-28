@@ -30,6 +30,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
 
@@ -65,18 +66,13 @@ public class User {
         this.role = role;
     }
 
-    public enum Role{
-        FOUNDER,
-        COFOUNDER,
-        INVESTOR
-    }
+
 
     @Override
     public String toString() {
         return "User{" +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", role=" + role +
                 '}';
     }

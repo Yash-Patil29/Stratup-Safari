@@ -2,7 +2,6 @@ package com.example.StartupSafari.controller;
 
 import com.example.StartupSafari.model.CoFounderRequest;
 import com.example.StartupSafari.service.CoFounderRequestService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,45 +1,62 @@
 package com.example.StartupSafari.controller;
 
 import com.example.StartupSafari.model.User;
+import com.example.StartupSafari.model.UserLoginRequest;
 import com.example.StartupSafari.service.UserService;
+import com.example.StartupSafari.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("api/users")
 public class UserController {
 
-    @Autowired
     private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserService userService) {
+    @Autowired
+    public UserController(UserService userService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody User user) {
-        System.out.println("Received User: " + user); // Debugging log
-        System.out.println("Received Password: " + user.getPassword());
-
-        if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Password cannot be null or empty!");
-        }
-
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
         userService.registerUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
 
-    @GetMapping("/{email}")
-    public ResponseEntity<Optional<User>> getUserByEmail(@PathVariable String email) {
-        User user = userService.getUserByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        System.out.println("Retrieved User: " + user);
-        return ResponseEntity.ok(Optional.ofNullable(user));
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginRequest loginRequest) {
+        Optional<User> optionalUser = userService.getUserByEmail(loginRequest.getEmail());
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+
+                Map<String, String> response = new HashMap<>();
+                response.put("token", token);
+                response.put("role", user.getRole().name());
+
+                return ResponseEntity.ok(response);
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Invalid credentials"));
     }
 
     @GetMapping("/all")

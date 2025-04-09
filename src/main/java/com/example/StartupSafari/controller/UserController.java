@@ -2,6 +2,7 @@ package com.example.StartupSafari.controller;
 
 import com.example.StartupSafari.model.User;
 import com.example.StartupSafari.model.UserLoginRequest;
+import com.example.StartupSafari.repository.UserRepository;
 import com.example.StartupSafari.service.UserService;
 import com.example.StartupSafari.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +23,20 @@ public class UserController {
     private final UserService userService;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
+    private UserRepository userRepository;
 
     @Autowired
-    public UserController(UserService userService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
+    public UserController(UserService userService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,UserRepository userRepository) {
         this.userService = userService;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Encrypt password
-        userService.registerUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+    public ResponseEntity<User> register(@RequestBody User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return ResponseEntity.ok(userRepository.save(user));
     }
 
     @PostMapping("/login")

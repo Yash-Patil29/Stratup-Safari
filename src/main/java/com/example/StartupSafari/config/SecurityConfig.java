@@ -37,9 +37,12 @@ public class SecurityConfig {
                         // ✅ Founder can post co-founder request and send startup ideas
                         .requestMatchers("/api/cofounder-requests/**").hasAuthority("FOUNDER")
                         .requestMatchers("/api/startup-ideas/**").hasAuthority("FOUNDER")
+                        .requestMatchers("/api/applications/founder/**").hasAuthority("FOUNDER")
 
                         // ✅ Co-founder can view/post applications
                         .requestMatchers("/api/applications/**").hasAuthority("CO_FOUNDER")
+                        .requestMatchers("/api/cofounder-requests/**").hasAuthority("Co_FOUNDER")
+
 
                         // ✅ Investor can view startup ideas sent to them
                         .requestMatchers("/api/startup-ideas/investor/**").hasAuthority("INVESTOR")

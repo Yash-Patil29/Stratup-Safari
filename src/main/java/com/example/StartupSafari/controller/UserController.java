@@ -1,68 +1,40 @@
 package com.example.StartupSafari.controller;
 
 import com.example.StartupSafari.model.User;
-import com.example.StartupSafari.model.UserLoginRequest;
 import com.example.StartupSafari.repository.UserRepository;
-import com.example.StartupSafari.service.UserService;
-import com.example.StartupSafari.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-@RestController
-@RequestMapping("api/users")
+@Controller
+@RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
-    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private UserRepository userRepository;
 
     @Autowired
-    public UserController(UserService userService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder,UserRepository userRepository) {
-        this.userService = userService;
-        this.jwtUtil = jwtUtil;
-        this.passwordEncoder = passwordEncoder;
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
+    // Serve registration page
+    @GetMapping("/register")
+    public String showRegistrationForm(Model model) {
+        model.addAttribute("user", new User());
+        return "register"; // points to register.html
+    }
+
+    // Handle registration form submission
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
+    public String registerUser(@ModelAttribute("user") User user) {
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return ResponseEntity.ok(userRepository.save(user));
-    }
+        userRepository.save(user);
 
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody UserLoginRequest loginRequest) {
-        Optional<User> optionalUser = userService.getUserByEmail(loginRequest.getEmail());
-
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-
-            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-
-                Map<String, String> response = new HashMap<>();
-                response.put("token", token);
-                response.put("role", user.getRole().name());
-
-                return ResponseEntity.ok(response);
-            }
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of("error", "Invalid credentials"));
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+        return "redirect:/login?registered";
     }
 }

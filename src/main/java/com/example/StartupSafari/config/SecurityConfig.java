@@ -15,12 +15,19 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
     private final UserDetailsService userDetailsService;
+<<<<<<< HEAD
     @Autowired
     private final CustomAuthenticationSuccessHandler successHandler;
 
     public SecurityConfig(UserDetailsService userDetailsService, CustomAuthenticationSuccessHandler successHandler) {
+=======
+    private final CustomAuthenticationSuccessHandler successHandler;
+
+    @Autowired
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          CustomAuthenticationSuccessHandler successHandler) {
+>>>>>>> 2fe70e86e82bc8d960c9a5a319b0ce6e9546f409
         this.userDetailsService = userDetailsService;
         this.successHandler = successHandler;
     }
@@ -38,7 +45,11 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
+<<<<<<< HEAD
                         .successHandler(successHandler)
+=======
+                        .successHandler(successHandler) // 👈 Role-based redirection
+>>>>>>> 2fe70e86e82bc8d960c9a5a319b0ce6e9546f409
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -55,7 +66,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // This is required for authentication
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();

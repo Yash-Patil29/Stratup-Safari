@@ -22,14 +22,14 @@ public class StartupIdeaController {
         this.startupIdeaService = startupIdeaService;
     }
 
-    // Founder submits an idea to an investor
-    @PostMapping
-    public ResponseEntity<StartupIdea> submitIdea(@RequestBody StartupIdeaRequest request) {
-        StartupIdea idea = startupIdeaService.submitIdea(
-                request.getFounderId(), request.getInvestorId(), request.getTitle(), request.getDescription()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(idea);
-    }
+//    // Founder submits an idea to an investor
+//    @PostMapping
+//    public ResponseEntity<StartupIdea> submitIdea(@RequestBody StartupIdeaRequest request) {
+//        StartupIdea idea = startupIdeaService.submitIdea(
+//                request.getFounderId(), request.getInvestorId(), request.getTitle(), request.getDescription()
+//        );
+//        return ResponseEntity.status(HttpStatus.CREATED).body(idea);
+//    }
 
     // Investor views all ideas sent to them
     @GetMapping("/investor/{investorId}")

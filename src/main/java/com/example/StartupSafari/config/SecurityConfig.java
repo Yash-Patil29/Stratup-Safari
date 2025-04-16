@@ -15,11 +15,14 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfig {
 
-    @Autowired
     private final UserDetailsService userDetailsService;
+    private final CustomAuthenticationSuccessHandler successHandler;
 
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    @Autowired
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          CustomAuthenticationSuccessHandler successHandler) {
         this.userDetailsService = userDetailsService;
+        this.successHandler = successHandler;
     }
 
     @Bean
@@ -32,7 +35,7 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true) // you can change this
+                        .successHandler(successHandler) // 👈 Role-based redirection
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -49,7 +52,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // This is required for authentication
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();

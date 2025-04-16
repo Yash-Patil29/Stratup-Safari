@@ -32,10 +32,10 @@ public class ApplicationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(application);
     }
 
-    @GetMapping("/cofounder/{cofounderId}")
-    public ResponseEntity<List<Application>> getApplicationsByCofounder(@PathVariable Long cofounderId) {
-        return ResponseEntity.ok(applicationService.getApplicationsByCofounder(cofounderId));
-    }
+//    @GetMapping("/cofounder/{cofounderId}")
+//    public ResponseEntity<List<Application>> getApplicationsByCofounder(@PathVariable Long cofounderId) {
+//        return ResponseEntity.ok(applicationService.getApplicationsByCofounder(cofounderId));
+//    }
 
     @GetMapping("/founder/{founderId}")
     public ResponseEntity<List<Application>> getApplicationsForFounder(@PathVariable Long founderId) {
@@ -43,10 +43,10 @@ public class ApplicationController {
         return ResponseEntity.ok(applications);
     }
 
-    @PutMapping("/{applicationId}/status")
-    public ResponseEntity<Application> updateApplicationStatus(
-            @PathVariable Long applicationId,
-            @RequestBody ApplicationStatusRequest statusRequest) {  // Accept JSON body
-        return ResponseEntity.ok(applicationService.updateApplicationStatus(applicationId, statusRequest.getStatus()));
-    }
+//    @PutMapping("/{applicationId}/status")
+//    public ResponseEntity<Application> updateApplicationStatus(
+//            @PathVariable Long applicationId,
+//            @RequestBody ApplicationStatusRequest statusRequest) {  // Accept JSON body
+//        return ResponseEntity.ok(applicationService.updateApplicationStatus(applicationId, statusRequest.getStatus()));
+//    }
 }

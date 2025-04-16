@@ -17,9 +17,12 @@ public class SecurityConfig {
 
     @Autowired
     private final UserDetailsService userDetailsService;
+    @Autowired
+    private final CustomAuthenticationSuccessHandler successHandler;
 
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    public SecurityConfig(UserDetailsService userDetailsService, CustomAuthenticationSuccessHandler successHandler) {
         this.userDetailsService = userDetailsService;
+        this.successHandler = successHandler;
     }
 
     @Bean
@@ -28,11 +31,14 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/register", "/users/register", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/founder-dashboard").hasAuthority("FOUNDER")
+                        .requestMatchers("/cofounder-dashboard").hasAuthority("CO_FOUNDER")
+                        .requestMatchers("/investor-dashboard").hasAuthority("INVESTOR")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true) // you can change this
+                        .successHandler(successHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout

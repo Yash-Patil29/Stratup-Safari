@@ -19,6 +19,16 @@ public class Application {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    public String getFounderEmail() {
+        return founderEmail;
+    }
+
+    public void setFounderEmail(String founderEmail) {
+        this.founderEmail = founderEmail;
+    }
+
+    private String founderEmail;
+
     @ManyToOne
     @JoinColumn(name = "cofounder_id", nullable = false)
     private User cofounder;

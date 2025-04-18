@@ -43,6 +43,13 @@ public class ApplicationController {
         return ResponseEntity.ok(applications);
     }
 
+    @PostMapping("/applications/{id}/status")
+    public String updateApplicationStatus(@PathVariable Long id,
+                                          @RequestParam("status") String status) {
+        applicationService.updateApplicationStatus(id, ApplicationStatus.valueOf(status));
+        return "redirect:/founder/dashboard";  // Adjust path as per your routing
+    }
+
 //    @PutMapping("/{applicationId}/status")
 //    public ResponseEntity<Application> updateApplicationStatus(
 //            @PathVariable Long applicationId,

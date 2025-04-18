@@ -1,36 +1,45 @@
 package com.example.StartupSafari.controller;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import com.example.StartupSafari.dto.ApplicationDTO;
 import com.example.StartupSafari.model.*;
 import com.example.StartupSafari.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/api/founder")
 public class FounderController {
 
     private final CoFounderRequestService coFounderRequestService;
     private final ApplicationService applicationService;
     private final StartupIdeaService startupIdeaService;
+    private InvestorService investorService;
+    private final UserService userService;
 
     @Autowired
     public FounderController(CoFounderRequestService coFounderRequestService,
                              ApplicationService applicationService,
-                             StartupIdeaService startupIdeaService) {
+                             StartupIdeaService startupIdeaService,
+                             InvestorService investorService,
+                             UserService userService) {
         this.coFounderRequestService = coFounderRequestService;
         this.applicationService = applicationService;
         this.startupIdeaService = startupIdeaService;
+        this.investorService = investorService;
+        this.userService=userService;
     }
 
-    // ✅ Post Co-founder requirement
+    // ✅ Post co-founder request
     @PostMapping("/requests/{founderId}")
-    public ResponseEntity<CoFounderRequest> postRequest(
-            @PathVariable Long founderId,
-            @RequestBody CoFounderRequest request) {
-        return ResponseEntity.ok(coFounderRequestService.createRequest(founderId, request));
+    public String postRequest(@PathVariable Long founderId, @ModelAttribute CoFounderRequest request) {
+        coFounderRequestService.createRequest(founderId, request);
+        return "redirect:/founder-dashboard";
     }
 
     // ✅ View posted requests by founder
@@ -46,18 +55,44 @@ public class FounderController {
     }
 
     // ✅ Update application status
-    @PutMapping("/applications/{applicationId}/status")
-    public ResponseEntity<Application> updateApplicationStatus(
+    @PostMapping("/applications/{applicationId}/status")
+    public String updateApplicationStatusForm(
             @PathVariable Long applicationId,
-            @RequestBody ApplicationStatusRequest statusRequest) {
-        return ResponseEntity.ok(applicationService.updateApplicationStatus(applicationId, statusRequest.getStatus()));
+            @RequestParam("status") String statusStr) {
+
+        ApplicationStatus status = ApplicationStatus.valueOf(statusStr.toUpperCase());
+        applicationService.updateApplicationStatus(applicationId, status);
+        return "redirect:/founder-dashboard";
     }
 
     // ✅ Submit idea to investor
     @PostMapping("/ideas")
-    public ResponseEntity<StartupIdea> submitIdea(@RequestBody StartupIdeaRequest request) {
-        StartupIdea idea = startupIdeaService.submitIdea(
-                request.getFounderId(), request.getInvestorId(), request.getTitle(), request.getDescription());
-        return ResponseEntity.status(HttpStatus.CREATED).body(idea);
+    public String submitIdea(@ModelAttribute StartupIdeaRequest request) {
+        startupIdeaService.submitIdea(
+                request.getFounderId(), request.getInvestorId(),
+                request.getTitle(), request.getDescription()
+        );
+        return "redirect:/founder-dashboard"; // back to dashboard
+    }
+
+
+    @GetMapping
+    public String showFounderDashboard(Model model, Principal principal) {
+        String email = principal.getName();
+        String username = email.substring(0, email.indexOf('@'));
+        model.addAttribute("username", username);
+
+        List<ApplicationDTO> applications = applicationService.getAllApplicationsForFounder(email);
+        List<User> investors = investorService.getAllInvestors();
+        Long founderId = userService.getUserIdByEmail(email);
+
+        model.addAttribute("applications", applications);
+        model.addAttribute("investors", investors);
+        model.addAttribute("founderId", founderId);
+
+        // ✅ THIS IS THE FIX: Add coFounderRequest object to model
+        model.addAttribute("CoFounderRequest", new CoFounderRequest());
+
+        return "founder-dashboard";
     }
 }

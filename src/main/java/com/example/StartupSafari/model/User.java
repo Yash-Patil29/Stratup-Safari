@@ -24,6 +24,10 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    public long getUserId() {
+        return user_id;
+    }
+
     @JsonProperty("password")
 
     @Column(nullable = false)

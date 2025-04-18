@@ -2,9 +2,96 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Founder Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h2 { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 8px 12px; border: 1px solid #ccc; text-align: left; }
+        form { margin-bottom: 20px; }
+        input, textarea, select, button { margin: 5px; padding: 5px; }
+        textarea { width: 100%; height: 60px; }
+        input[type="text"] { width: 100%; }
+        button { padding: 6px 12px; }
+    </style>
 </head>
 <body>
-<h1>Welcome, Founder!</h1>
-<p>Post co-founder requests and manage applications.</p>
+
+<h1>Welcome, <span th:text="${username}"></span> (<span th:text="${role}"></span>)</h1>
+<!-- Post Co-founder Request -->
+<h2>Post Co-founder Requirement</h2>
+<form th:action="@{'/api/founder/requests/' + ${founderId}}" method="post" th:object="${CoFounderRequest}">
+    <label for="skills">Skills:</label><br>
+    <input type="text" th:field="*{skills}" id="skills" required/><br>
+
+    <label for="description">Description:</label><br>
+    <textarea th:field="*{description}" id="description" required></textarea><br>
+
+    <button type="submit">Submit</button>
+</form>
+
+<!-- View Co-founder Applications -->
+<h2>Co-founder Applications</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Cover Letter</th>
+        <th>Status</th>
+        <th>Change Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="app : ${applications}">
+        <td th:text="${app.cofounderName}">Name</td>
+        <td th:text="${app.cofounderEmail}">Email</td>
+        <td th:text="${app.coverLetter}">Cover Letter</td>
+        <td th:text="${app.status}">Status</td>
+        <td>
+            <form th:action="@{'/api/founder/applications/' + ${app.id} + '/status'}" method="post">
+                <select name="status">
+                    <option value="PENDING" th:selected="${app.status == 'PENDING'}">Pending</option>
+                    <option value="ACCEPTED" th:selected="${app.status == 'ACCEPTED'}">Accepted</option>
+                    <option value="REJECTED" th:selected="${app.status == 'REJECTED'}">Rejected</option>
+                </select>
+                <button type="submit">Update</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- View Investors -->
+<h2>Investors List</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Investor Name</th>
+        <th>Investor Email</th>
+        <th>Send Idea</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="inv : ${investors}">
+        <td th:text="${inv.name}">Investor Name</td>
+        <td th:text="${inv.email}">Investor Email</td>
+        <td>
+            <form th:action="@{/api/founder/ideas}" method="post">
+                <input type="hidden" name="founderId" th:value="${founderId}" />
+                <input type="hidden" name="investorId" th:value="${inv.userId}" />
+
+                <label>Title:</label><br>
+                <input type="text" name="title" required><br>
+
+                <label>Description:</label><br>
+                <textarea name="description" required></textarea><br>
+
+                <button type="submit">Send Idea</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
 </body>
 </html>

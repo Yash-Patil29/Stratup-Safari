@@ -12,4 +12,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     List<Application> findByCofounder(User cofounder);
     List<Application> findByRequestFounder(User founder);
+    List<Application> findByFounderEmail(String email);
 }

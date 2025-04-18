@@ -9,6 +9,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Collection;
 
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -19,30 +20,24 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        String redirectUrl = "/"; // fallback
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String redirectURL = request.getContextPath();
 
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
-            String role = authority.getAuthority();
-            System.out.println("User has role: " + role); // ✅ DEBUG LOG
-
-            // ✅ Add this line for debugging
-            System.out.println("Redirecting based on role: " + role);
-
-            switch (role) {
+        for (GrantedAuthority auth : authorities) {
+            switch (auth.getAuthority()) {
                 case "FOUNDER":
-                    redirectUrl = "/founder-dashboard";
+                    redirectURL += "/founder-dashboard";
                     break;
                 case "CO_FOUNDER":
-                    redirectUrl = "/cofounder-dashboard";
+                    redirectURL += "/cofounder-dashboard";
                     break;
                 case "INVESTOR":
-                    redirectUrl = "/investor-dashboard";
+                    redirectURL += "/investor-dashboard";
                     break;
-                default:
-                    redirectUrl = "/login?error=role_not_found";
             }
         }
 
-        response.sendRedirect(redirectUrl);
+        response.sendRedirect(redirectURL);
     }
 }
+

@@ -47,4 +47,11 @@ public class StartupIdeaService {
 
         return startupIdeaRepository.findByInvestor(investor);
     }
+
+    public List<StartupIdea> getIdeasByInvestorAndStatus(Long investorId, IdeaStatus status) {
+        User investor = userRepository.findById(investorId)
+                .orElseThrow(() -> new RuntimeException("Investor not found"));
+
+        return startupIdeaRepository.findByInvestorAndStatus(investor, status);
+    }
 }

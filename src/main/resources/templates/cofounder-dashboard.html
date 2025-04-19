@@ -2,9 +2,65 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Co-founder Dashboard</title>
+    <style>
+        .apply-form { display: none; margin-top: 10px; }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            padding: 10px;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        function toggleForm(id) {
+            const form = document.getElementById('form-' + id);
+            form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const alert = document.querySelector('.alert-success');
+            if (alert) {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 3000); // hide after 3 seconds
+            }
+        });
+    </script>
 </head>
 <body>
+
+<div th:if="${successMessage}" class="alert-success">
+    <p th:text="${successMessage}"></p>
+</div>
+
 <h2>Welcome, <span th:text="${username}"></span> (<span th:text="${role}"></span>)</h2>
-<p>View co-founder requests and apply.</p>
+<h3>Available Co-founder Requests</h3>
+
+<div th:if="${#lists.isEmpty(requests)}">
+    <p>No co-founder requests available.</p>
+</div>
+
+<div th:each="request : ${requests}">
+    <div style="border: 1px solid gray; padding: 10px; margin-bottom: 10px;">
+        <p><strong>Skills:</strong> <span th:text="${request.skills}"></span></p>
+        <p><strong>Description:</strong> <span th:text="${request.description}"></span></p>
+
+        <button type="button" th:onclick="'toggleForm(' + ${request.id} + ')'">Apply</button>
+
+        <div th:id="'form-' + ${request.id}" class="apply-form">
+            <form th:action="@{/api/applications}" method="post">
+                <input type="hidden" name="requestId" th:value="${request.id}" />
+                <input type="hidden" name="cofounderId" th:value="${cofounderId}" />
+
+                <label>Cover Letter:</label><br/>
+                <textarea name="coverLetter" rows="4" cols="50" required></textarea><br/>
+
+                <button type="submit">Submit Application</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

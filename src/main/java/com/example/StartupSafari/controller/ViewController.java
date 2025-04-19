@@ -5,13 +5,17 @@ import com.example.StartupSafari.model.CoFounderRequest;
 import com.example.StartupSafari.model.User;
 import com.example.StartupSafari.repository.UserRepository;
 import com.example.StartupSafari.service.ApplicationService;
+import com.example.StartupSafari.service.CoFounderRequestService;
+import com.example.StartupSafari.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +26,10 @@ public class ViewController {
     private UserRepository userRepository;
     @Autowired
     private ApplicationService applicationService;
+    @Autowired
+    private CoFounderRequestService coFounderRequestService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -40,8 +48,17 @@ public class ViewController {
     }
 
     @GetMapping("/cofounder-dashboard")
-    public String cofounderDashboard(Model model, Authentication authentication) {
-        addUserInfo(model, authentication);
+    public String showCoFounderDashboard(Model model, Principal principal) {
+        String email = principal.getName();
+
+        User user = userService.getUserByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        model.addAttribute("username", user.getEmail());
+        model.addAttribute("cofounderId", user.getUserId());
+        model.addAttribute("role", user.getRole());
+        model.addAttribute("requests", coFounderRequestService.getAllRequests());
+
         return "cofounder-dashboard";
     }
 

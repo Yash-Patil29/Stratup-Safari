@@ -3,95 +3,263 @@
 <head>
     <title>Founder Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h2 { margin-top: 30px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 8px 12px; border: 1px solid #ccc; text-align: left; }
-        form { margin-bottom: 20px; }
-        input, textarea, select, button { margin: 5px; padding: 5px; }
-        textarea { width: 100%; height: 60px; }
-        input[type="text"] { width: 100%; }
-        button { padding: 6px 12px; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f8f5;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            color: #2e7d32;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #1b5e20;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 16px;
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #43a047;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        th {
+            background-color: #eaf6ea;
+        }
+
+        .form-inline {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .form-inline {
+                flex-direction: row;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .form-inline select {
+                flex: 1;
+            }
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-content h2 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .modal-content button {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .modal-content .close {
+            position: absolute;
+            top: 8px; right: 15px;
+            font-size: 22px;
+            color: #999;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
-<h1>Welcome, <span th:text="${username}"></span> (<span th:text="${role}"></span>)</h1>
-<!-- Post Co-founder Request -->
-<h2>Post Co-founder Requirement</h2>
-<form th:action="@{'/api/founder/requests/' + ${founderId}}" method="post" th:object="${CoFounderRequest}">
-    <label for="skills">Skills:</label><br>
-    <input type="text" th:field="*{skills}" id="skills" required/><br>
+<div class="dashboard-container">
+    <h1>Welcome, <span th:text="${username}"></span> (<span th:text="${role}"></span>)</h1>
 
-    <label for="description">Description:</label><br>
-    <textarea th:field="*{description}" id="description" required></textarea><br>
+    <!-- Post Co-founder Request -->
+    <div class="card">
+        <h2>Post Co-founder Requirement</h2>
+        <button onclick="openCofounderModal()">Post Co-founder Request</button>
+    </div>
 
-    <button type="submit">Submit</button>
-</form>
+    <!-- Co-founder Applications -->
+    <div class="card">
+        <h2>Co-founder Applications</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Cover Letter</th>
+                <th>Status</th>
+                <th>Change Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="app : ${applications}">
+                <td th:text="${app.cofounderName}">Name</td>
+                <td th:text="${app.cofounderEmail}">Email</td>
+                <td th:text="${app.coverLetter}">Cover Letter</td>
+                <td th:text="${app.status}">Status</td>
+                <td>
+                    <form th:action="@{'/api/founder/applications/' + ${app.id} + '/status'}" method="post" class="form-inline">
+                        <select name="status">
+                            <option value="PENDING" th:selected="${app.status == 'PENDING'}">Pending</option>
+                            <option value="ACCEPTED" th:selected="${app.status == 'ACCEPTED'}">Accepted</option>
+                            <option value="REJECTED" th:selected="${app.status == 'REJECTED'}">Rejected</option>
+                        </select>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-<!-- View Co-founder Applications -->
-<h2>Co-founder Applications</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Cover Letter</th>
-        <th>Status</th>
-        <th>Change Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="app : ${applications}">
-        <td th:text="${app.cofounderName}">Name</td>
-        <td th:text="${app.cofounderEmail}">Email</td>
-        <td th:text="${app.coverLetter}">Cover Letter</td>
-        <td th:text="${app.status}">Status</td>
-        <td>
-            <form th:action="@{'/api/founder/applications/' + ${app.id} + '/status'}" method="post">
-                <select name="status">
-                    <option value="PENDING" th:selected="${app.status == 'PENDING'}">Pending</option>
-                    <option value="ACCEPTED" th:selected="${app.status == 'ACCEPTED'}">Accepted</option>
-                    <option value="REJECTED" th:selected="${app.status == 'REJECTED'}">Rejected</option>
-                </select>
-                <button type="submit">Update</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+    <!-- View Investors -->
+    <div class="card">
+        <h2>Investors List</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Investor Name</th>
+                <th>Investor Email</th>
+                <th>Send Idea</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="inv : ${investors}">
+                <td th:text="${inv.name}">Investor Name</td>
+                <td th:text="${inv.email}">Investor Email</td>
+                <td>
+                    <form th:action="@{/api/founder/ideas}" method="post">
+                        <input type="hidden" name="founderId" th:value="${founderId}" />
+                        <input type="hidden" name="investorId" th:value="${inv.userId}" />
 
-<!-- View Investors -->
-<h2>Investors List</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Investor Name</th>
-        <th>Investor Email</th>
-        <th>Send Idea</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="inv : ${investors}">
-        <td th:text="${inv.name}">Investor Name</td>
-        <td th:text="${inv.email}">Investor Email</td>
-        <td>
-            <form th:action="@{/api/founder/ideas}" method="post">
-                <input type="hidden" name="founderId" th:value="${founderId}" />
-                <input type="hidden" name="investorId" th:value="${inv.userId}" />
+                        <label>Title:</label>
+                        <input type="text" name="title" required>
 
-                <label>Title:</label><br>
-                <input type="text" name="title" required><br>
+                        <label>Description:</label>
+                        <textarea name="description" required></textarea>
 
-                <label>Description:</label><br>
-                <textarea name="description" required></textarea><br>
+                        <button type="submit">Send Idea</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-                <button type="submit">Send Idea</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<!-- Co-founder Request Modal -->
+<div class="modal" id="cofounderModal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('cofounderModal')">&times;</span>
+        <h2>Post Co-Founder Request</h2>
+        <form th:action="@{'/api/founder/requests/' + ${founderId}}" method="post" th:object="${CoFounderRequest}">
+            <label for="skills">Skills</label>
+            <input type="text" th:field="*{skills}" id="skills" required/>
+
+            <label for="description">Description</label>
+            <textarea th:field="*{description}" id="description" required></textarea>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Function to open Co-founder modal
+    function openCofounderModal() {
+        document.getElementById("cofounderModal").style.display = "flex";
+    }
+
+    // Function to close modals
+    function closeModal(id) {
+        document.getElementById(id).style.display = "none";
+    }
+</script>
 
 </body>
 </html>

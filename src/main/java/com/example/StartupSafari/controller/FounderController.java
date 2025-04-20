@@ -51,7 +51,7 @@ public class FounderController {
     // ✅ View applications received for your requests
     @GetMapping("/applications/{founderId}")
     public ResponseEntity<List<Application>> viewApplications(@PathVariable Long founderId) {
-        return ResponseEntity.ok(applicationService.getApplicationsForFounder(founderId));
+        return ResponseEntity.ok(applicationService.getApplicationEntitiesForFounder(founderId));
     }
 
     // ✅ Update application status

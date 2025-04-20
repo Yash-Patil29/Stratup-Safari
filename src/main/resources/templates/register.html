@@ -1,28 +1,113 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Register</title>
+    <meta charset="UTF-8">
+    <title>Register | Startup Safari</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a3d62, #3c6382);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-container {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .register-container h2 {
+            margin-bottom: 5px;
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .register-container p {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+        }
+
+        .register-container input,
+        .register-container select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .register-container button {
+            width: 100%;
+            background-color: #fd7e14;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .register-container button:hover {
+            background-color: #e96400;
+        }
+
+        .register-container .footer-text {
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .register-container .footer-text a {
+            color: #e67e22;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .emoji-title {
+            font-size: 20px;
+        }
+
+        .emoji-title img {
+            vertical-align: middle;
+            width: 24px;
+            margin-right: 5px;
+        }
+    </style>
 </head>
 <body>
-<h2>Register</h2>
-<form th:action="@{/users/register}" method="post">
-    <label for="name">Full Name:</label><br>
-    <input type="text" id="name" name="name" required><br><br>
+<div class="register-container">
+    <div class="emoji-title">
+        🚀 <strong>Join Startup Safari</strong>
+    </div>
+    <p>Be part of a wild journey through innovation and ideas.</p>
+    <form th:action="@{/users/register}" method="post">
+        <input type="text" id="name" name="name" placeholder="Full Name" required>
+        <input type="email" id="email" name="email" placeholder="Email Address" required>
+        <input type="password" id="password" name="password" placeholder="Password" required>
 
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email" required><br><br>
+        <select id="role" name="role" required>
+            <option value="" disabled selected>Select Your Role</option>
+            <option value="FOUNDER">Founder</option>
+            <option value="CO_FOUNDER">Co-Founder</option>
+            <option value="INVESTOR">Investor</option>
+        </select>
 
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
-
-    <label for="role">Role:</label><br>
-    <select id="role" name="role" required>
-        <option value="FOUNDER">Founder</option>
-        <option value="CO_FOUNDER">Co-Founder</option>
-        <option value="INVESTOR">Investor</option>
-    </select><br><br>
-
-    <button type="submit">Register</button>
-</form>
+        <button type="submit">Register</button>
+    </form>
+    <div class="footer-text">
+        Already have an account? <a th:href="@{/login}">Log in here</a>
+    </div>
+</div>
 </body>
 </html>

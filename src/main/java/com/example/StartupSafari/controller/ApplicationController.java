@@ -49,7 +49,7 @@ public class ApplicationController {
 
     @GetMapping("/founder/{founderId}")
     public ResponseEntity<List<Application>> getApplicationsForFounder(@PathVariable Long founderId) {
-        List<Application> applications = applicationService.getApplicationsForFounder(founderId);
+        List<Application> applications = applicationService.getApplicationEntitiesForFounder(founderId);
         return ResponseEntity.ok(applications);
     }
 

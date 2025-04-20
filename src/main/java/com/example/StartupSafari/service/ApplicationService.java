@@ -50,13 +50,6 @@ public class ApplicationService {
         return applicationRepository.findByCofounder(cofounder);
     }
 
-    public List<Application> getApplicationsForFounder(Long founderId) {
-        User founder = userRepository.findById(founderId)
-                .orElseThrow(() -> new RuntimeException("Founder not found"));
-
-        return applicationRepository.findByRequestFounder(founder);
-    }
-
     public Application updateApplicationStatus(Long applicationId, ApplicationStatus status) {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Application not found"));
@@ -65,22 +58,22 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
-    public List<ApplicationDTO> getApplicationDTOsForFounder(Long founderId) {
-        User founder = userRepository.findById(founderId)
-                .orElseThrow(() -> new RuntimeException("Founder not found"));
-
-        List<Application> applications = applicationRepository.findByRequestFounder(founder);
-
-        return applications.stream().map(app -> {
-            ApplicationDTO dto = new ApplicationDTO();
-            dto.setId(app.getId());
-            dto.setCofounderName(app.getCofounder().getName());
-            dto.setCofounderEmail(app.getCofounder().getEmail());
-            dto.setCoverLetter(app.getCoverLetter());
-            dto.setStatus(app.getStatus().name());
-            return dto;
-        }).toList();
-    }
+//    public List<ApplicationDTO> getApplicationDTOsForFounder(Long founderId) {
+//        User founder = userRepository.findById(founderId)
+//                .orElseThrow(() -> new RuntimeException("Founder not found"));
+//
+//        List<Application> applications = applicationRepository.findByRequestFounder(founder);
+//
+//        return applications.stream().map(app -> {
+//            ApplicationDTO dto = new ApplicationDTO();
+//            dto.setId(app.getId());
+//            dto.setCofounderName(app.getCofounder().getName());
+//            dto.setCofounderEmail(app.getCofounder().getEmail());
+//            dto.setCoverLetter(app.getCoverLetter());
+//            dto.setStatus(app.getStatus().name());
+//            return dto;
+//        }).toList();
+//    }
 
     public List<ApplicationDTO> getAllApplicationsForFounder(String email) {
         List<Application> applications = applicationRepository.findByFounderEmail(email);
@@ -100,6 +93,12 @@ public class ApplicationService {
 
     public List<Application> getApplicationsForFounder(String email) {
         User founder = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        return applicationRepository.findByRequestFounder(founder);
+    }
+    public List<Application> getApplicationEntitiesForFounder(Long founderId) {
+        User founder = userRepository.findById(founderId)
+                .orElseThrow(() -> new RuntimeException("Founder not found"));
 
         return applicationRepository.findByRequestFounder(founder);
     }

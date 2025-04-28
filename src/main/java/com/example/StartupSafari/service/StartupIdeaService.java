@@ -54,4 +54,12 @@ public class StartupIdeaService {
 
         return startupIdeaRepository.findByInvestorAndStatus(investor, status);
     }
+
+    // Update idea status
+    public void updateIdeaStatus(Long ideaId, IdeaStatus status) {
+        StartupIdea idea = startupIdeaRepository.findById(ideaId)
+                .orElseThrow(() -> new RuntimeException("Idea not found with ID: " + ideaId));
+        idea.setStatus(status);
+        startupIdeaRepository.save(idea);
+    }
 }

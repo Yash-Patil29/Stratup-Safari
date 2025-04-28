@@ -64,7 +64,18 @@ public class ViewController {
 
     @GetMapping("/investor-dashboard")
     public String investorDashboard(Model model, Authentication authentication) {
-        addUserInfo(model, authentication);
+        String email = authentication.getName();
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            model.addAttribute("username", user.getName());
+            model.addAttribute("role", user.getRole());
+            model.addAttribute("investorId", user.getUserId()); // 👈 Add this line
+        } else {
+            model.addAttribute("username", "Unknown User");
+            model.addAttribute("role", "Unknown Role");
+        }
         return "investor-dashboard";
     }
 

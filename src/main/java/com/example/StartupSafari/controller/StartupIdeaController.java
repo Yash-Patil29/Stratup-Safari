@@ -1,6 +1,7 @@
 package com.example.StartupSafari.controller;
 
 
+import com.example.StartupSafari.model.IdeaStatus;
 import com.example.StartupSafari.model.StartupIdea;
 import com.example.StartupSafari.model.StartupIdeaRequest;
 import com.example.StartupSafari.service.StartupIdeaService;
@@ -35,5 +36,11 @@ public class StartupIdeaController {
     @GetMapping("/investor/{investorId}")
     public ResponseEntity<List<StartupIdea>> getIdeasForInvestor(@PathVariable Long investorId) {
         return ResponseEntity.ok(startupIdeaService.getIdeasForInvestor(investorId));
+    }
+
+    @PutMapping("/{ideaId}/status")
+    public ResponseEntity<String> updateIdeaStatus(@PathVariable Long ideaId, @RequestParam IdeaStatus status) {
+        startupIdeaService.updateIdeaStatus(ideaId, status);
+        return ResponseEntity.ok("Idea status updated successfully.");
     }
 }

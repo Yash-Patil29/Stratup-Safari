@@ -2,9 +2,77 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Investor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- Add Axios for API calls -->
 </head>
 <body>
+
 <h2>Welcome, <span th:text="${username}"></span> (<span th:text="${role}"></span>)</h2>
-<p>View startup ideas submitted to you.</p>
+<p>Startup Ideas sent to you:</p>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Change Status</th>
+    </tr>
+    </thead>
+    <tbody id="ideas-table-body">
+    <!-- Will be dynamically filled -->
+    </tbody>
+</table>
+
+<script th:inline="javascript">
+    const investorId = [[${investorId}]]; // Get investorId from server
+
+    // Fetch startup ideas for this investor
+    function fetchIdeas() {
+        axios.get(`/api/startup-ideas/investor/${investorId}`)
+            .then(response => {
+                const ideas = response.data;
+                const tbody = document.getElementById('ideas-table-body');
+                tbody.innerHTML = "";
+
+                ideas.forEach(idea => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${idea.title}</td>
+                        <td>${idea.description}</td>
+                        <td>${idea.status}</td>
+                        <td>
+                            <select onchange="updateStatus(${idea.id}, this.value)">
+                                <option value="">Select</option>
+                                <option value="REVIEWED">Reviewed</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                            </select>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching ideas:', error);
+            });
+    }
+
+    // Update idea status
+    function updateStatus(ideaId, newStatus) {
+        if (newStatus) {
+            axios.put(`/api/startup-ideas/${ideaId}/status?status=${newStatus}`)
+                .then(response => {
+                    alert("Status updated successfully!");
+                    fetchIdeas(); // Refresh the table
+                })
+                .catch(error => {
+                    console.error('Error updating status:', error);
+                });
+        }
+    }
+
+    fetchIdeas(); // Initial call to load ideas
+</script>
+
 </body>
 </html>
